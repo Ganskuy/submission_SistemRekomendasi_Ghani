@@ -193,11 +193,15 @@ Dibawah ini ditampilkan 5 data acak dari dataset akhir yang disimpan dalam varia
 | 3     | Tokyo Story              | drama yasujirô ozu kôgo noda yasujirô ozu yasu...                    |
 | 4     | The Leopard (re-release) | drama history luchino visconti giuseppe tomasi...                   | 
 
-## Membuat Sistem Rekomendasi dengan Pendekatan Item-based Filtering
+## Membuat Sistem Rekomendasi dengan Pendekatan Content-based Filtering
 
-pada proyek ini, kita akan menggunakan Cosine Similarity sebagai metrik similaritas untuk memberikan top-N rekommendation dari film yang menjadi studi kasus kali ini, yaitu Avatar (2009). Cosine Similarity sendiri adalah metode untuk mengukur seberapa mirip dua vektor dalam ruang vektor, dengan menghitung nilai cosinus dari sudut di antara keduanya. Nilai cosine similarity berkisar antara -1 hingga 1, di mana 1 berarti kedua vektor identik (arahnya sama). Fitur yang ada pada suatu   dokumen yang merupakan dimensi membentuk sebuah vektor, Kedua vektor yang terbentuk dari dua dokumen dapat dicari kemiripannya dengan menghitung jarak antar vektor [_(Fajriansyah et al., 2021)_](https://j-ptiik.ub.ac.id/index.php/j-ptiik/article/view/9163).
+Content-based Filtering adalah metode rekomendasi yang menyarankan item berdasarkan kesamaan antara fitur item dan preferensi pengguna. Sistem ini menganalisis atribut (seperti genre, deskripsi, atau kategori) dari item yang disukai pengguna, lalu merekomendasikan item lain yang memiliki fitur serupa. Pada proyek ini, kita akan menggunakan Cosine Similarity sebagai metrik similaritas untuk memberikan top-N rekommendation dari film yang menjadi studi kasus kali ini, yaitu Avatar (2009). 
 
-** Rumus Cosine Similarity**
+### Cosine Similarity
+
+Cosine Similarity adalah metode untuk mengukur seberapa mirip dua vektor dalam ruang vektor, dengan menghitung nilai cosinus dari sudut di antara keduanya. Nilai cosine similarity berkisar antara -1 hingga 1, di mana 1 berarti kedua vektor identik (arahnya sama). Fitur yang ada pada suatu dokumen yang merupakan dimensi membentuk sebuah vektor, Kedua vektor yang terbentuk dari dua dokumen dapat dicari kemiripannya dengan menghitung jarak antar vektor [_(Fajriansyah et al., 2021)_](https://j-ptiik.ub.ac.id/index.php/j-ptiik/article/view/9163). Akan tetapi sebelum masuk ke tahap Development, variabel info yang berisi informasi tentang film akan diproses terlebih dahulu oleh TF-IDF (TermFrequency-InverseDocumentFrequency).
+
+**Rumus Cosine Similarity**
 
 ![Box Plot Illustration](https://github.com/Ganskuy/submission_SistemRekomendasi_Ghani/blob/main/resource/cosine.png?raw=true)
 
@@ -208,33 +212,29 @@ Penjelasan:
 - Σ Ai * Bi menghitung jumlah hasil kali elemen-elemen yang bersesuaian dari A dan B.
 - √(Σ Ai²) dan √(Σ Bi²) menghitung panjang (magnitudo) dari masing-masing vektor.
 
+**TF-IDF (TermFrequency-InverseDocumentFrequency)**
 
-1. K-Nearest Neighbor
-- **Proses Pembangunan Model**:
+TF-IDF merupakan angka statistik yang menunjukkan relevansi suatu termdengan beberapa dokumen sehingga termtersebut dapat menjadi kata kunci dari dokumen tertentu. Dari nilai tersebut beberapa dokumen tertentu dapat diidentifikasi atau dikategorikan [_(Fajriansyah et al., 2021)_](https://j-ptiik.ub.ac.id/index.php/j-ptiik/article/view/9163). 
 
-  1.   ```from sklearn.neighbors import KNeighborsRegressor```
+![Box Plot Illustration](https://github.com/Ganskuy/submission_SistemRekomendasi_Ghani/blob/main/resource/cosine.png?raw=true)
 
-       - Mengimpor class `KNeighborsRegressor` dari pustaka scikit-learn.
+#### Development
 
-  2.   ```from sklearn.metrics import mean_squared_error```
+  1.   ```from sklearn.feature_extraction.text import TfidfVectorizer```
 
-       - Mengimpor class `mean_squared_error` dari pustaka scikit-learn, mean squared error (MSE) merupakan metrik evaluasi yang kita gunakan pada proyek ini
+       - Mengimpor class `TfidfVectorizer` dari pustaka scikit-learn.
 
-  3.   ```knn = KNeighborsRegressor(n_neighbors=10)```
+  2.   ```vectorizer = TfidfVectorizer()```
 
-       - Membuat objek dari class `KNeighborsRegressor` dengan parameter yang ditentukan.
+       - menyimpan class TfidfVectorizer pada variabel vectorizer
 
-          - **Penjelasan Parameter**:
+  3.   ```tfidf_matrix = vectorizer.fit_transform(data['info'])```
 
-            - `n_neighbors=10`: model akan mencari 10 tetangga terdekat dari titik data baru dan mengambil rata-rata dari target mereka untuk menghasilkan prediksi.
+       - Mengubah data pada kolom info menjadi array
 
-  4.   ```knn.fit(X_train, y_train)```
+  4.   ```tfidf_matrix.todense()```
 
-       - Memanggil metode fit untuk melatih model `KNeighborsRegressor` menggunakan data pelatihan `X_train` dan `y_train`.
-
-       - `X_train`: Matriks fitur untuk melatih model.
-
-       - `y_train`: Nilai target yang sesuai dengan data fitur dalam `X_train`.
+       - mengubah tfidf_matrix kedalam bentuk matrix dengan fungsi todense()
          
 - **Cara Kerja Model**:
   - K-Nearest Neighbors bekerja dengan mencari sejumlah tetangga terdekat dalam ruang fitur yang memiliki nilai target serupa. Setelah tetangga ditemukan, model akan menggunakan nilai rata-rata dari tetangga tersebut untuk membuat prediksi nilai target untuk data baru.
