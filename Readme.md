@@ -11,7 +11,7 @@ Pada proyek ini, saya menggunakan film Avatar (2009) untuk dijadikan studi kasus
 ### Problem Statements
 
 Rumusan masalah pada proyek ini adalah :
-- Dilansir dari Website Rotten Tomatoes tentang film dengan penghasilan tertinggi sepanjang masa, Avatar (2009) merupakan film no. 1 dengan penghasilan tertinggi, dengan metode Content-Based Filtering, film apakah yang akan direkomendasikan untuk film yang mirip dengan Avatar?
+- Dilansir dari Website [Rotten Tomatoes](https://editorial-rottentomatoes-com.translate.goog/article/highest-grossing-movies-all-time/?_x_tr_sl=en&_x_tr_tl=id&_x_tr_hl=id&_x_tr_pto=tc) tentang film dengan penghasilan tertinggi sepanjang masa, Avatar (2009) merupakan film no. 1 dengan penghasilan tertinggi, dengan metode Content-Based Filtering, film apakah yang akan direkomendasikan untuk film yang mirip dengan Avatar?
 - Bagaimana perbedaan antara film yang direkomendasikan oleh model dengan film yang direkomendasikan oleh manusia?
 
 ### Goals
@@ -270,6 +270,8 @@ def film_recommendations(nama_film, similarity_data=cosine_sim_df, items=data[['
 - Drop nama_film agar nama film yang dicari tidak muncul dalam daftar rekomendasi
 - menggunakan k=10, artinya model akan memberikan rekomendasi sebanyak 10 film
 
+Cosine Similarity bekerja dengan mengukur kemiripan arah antara dua vektor dalam ruang berdimensi tinggi.
+
 ### Top-N Recommendation
 
 ```film_recommendations('Avatar') ```
@@ -298,143 +300,46 @@ Pada evaluasi ini, kita akan membandingkan, seberapa akurat model dapat merekome
 **Rmus Precission@k**
 ![Box Plot Illustration](https://github.com/Ganskuy/submission_SistemRekomendasi_Ghani/blob/main/resource/precission@k.png?raw=true)
 
+Precision@K mengukur proporsi dari K item teratas yang relevan bagi pengguna. Nilainya berkisar dari 0 hingga 1. Semakin tinggi nilainya, semakin tepat sistem dalam memberikan rekomendasi yang relevan. 
+
 **Rumus Mean Precission@k**
-![Box Plot Illustration](https://github.com/Ganskuy/submission_SistemRekomendasi_Ghani/blob/main/resource/precission@k.png?raw=true)
+![Box Plot Illustration](https://github.com/Ganskuy/submission_SistemRekomendasi_Ghani/blob/main/resource/Screenshot%202025-05-28%20at%2017.30.19.png?raw=true)
 
+Rumus ini menghitung rata-rata precision hanya pada posisi di mana item relevan muncul, lalu membaginya dengan jumlah item relevan tersebut. Nilainya menunjukkan seberapa baik sistem dalam menempatkan item relevan di urutan atas.
 
+**Hasil Evaluasi**
 
+| k  | Precision@k |
+|----|-------------|
+| 1  | 1.000000    |
+| 2  | 0.500000    |
+| 3  | 0.333333    |
+| 4  | 0.250000    |
+| 5  | 0.200000    |
+| 6  | 0.166667    |
+| 7  | 0.142857    |
+| 8  | 0.125000    |
+| 9  | 0.111111    |
+| 10 | 0.100000    |
 
-         
-- **Cara Kerja Model**:
-  - K-Nearest Neighbors bekerja dengan mencari sejumlah tetangga terdekat dalam ruang fitur yang memiliki nilai target serupa. Setelah tetangga ditemukan, model akan menggunakan nilai rata-rata dari tetangga tersebut untuk membuat prediksi nilai target untuk data baru.
-
----
-
-2. Random Forest
-- **Proses Pembangunan Model**:
-
-  1.   ```from sklearn.ensemble import RandomForestRegressor```
-
-       - Mengimpor class `RandomForestRegressor` dari pustaka scikit-learn.
-
-  2.   ```RF = RandomForestRegressor(n_estimators=50, max_depth=16, random_state=55, n_jobs=-1)```
-
-       - Membuat objek dari class `RandomForestRegressor` dengan parameter yang ditentukan.
-
-          - **Penjelasan Parameter**:
-
-            - `n_estimators=50`: jumlah pohon yang dibangun sebanyak 50
-            - `max_depth=16`: batas kedalam maksimum tiap pohon adalah 16 level, hal ini dilakukan untuk mencegah overfitting
-            - `n_jobs=-1`: Menggunakan seluruh core CPU yang tersedia untuk mempercepat training
-
-  3.   ```RF.fit(X_train, y_train)```
-
-       - Memanggil metode fit untuk melatih model `RandomForestRegressor` menggunakan data pelatihan `X_train` dan `y_train`.
-
-       - `X_train`: Matriks fitur untuk melatih model.
-
-       - `y_train`: Nilai target yang sesuai dengan data fitur dalam `X_train`.
-         
-- **Cara Kerja Model**:
-  - Random Forest bekerja dengan membuat banyak decision tree dari data yang diacak. Hasil prediksi dari semua pohon tersebut kemudian digabungkan — dengan cara voting (untuk klasifikasi) atau rata-rata (untuk regresi).
-
----
-
-3. Ada Boost
-- **Proses Pembangunan Model**:
-
-  1.   ```from sklearn.ensemble import AdaBoostRegressor```
-
-       - Mengimpor class `AdaBoostRegressor` dari pustaka scikit-learn.
-
-  2.   ```boosting = AdaBoostRegressor(learning_rate=0.05, random_state=55)```
-
-       - Membuat objek dari class `AdaBoostRegressor` dengan parameter yang ditentukan.
-
-          - **Penjelasan Parameter**:
-
-            - `learning_rate=0.05`: learning_rate=0.05 berarti, Mengontrol kontribusi masing-masing model lemah. Nilai yang kecil berarti model belajar lebih lambat tapi lebih stabil.
-            - `random_state=55`: 55 “seed” digunakan untuk mengatur generator angka acak.
-
-  3.   ```boosting.fit(X_train, y_train)```
-
-       - Memanggil metode fit untuk melatih model `AdaBoostRegressor` menggunakan data pelatihan `X_train` dan `y_train`.
-
-       - `X_train`: Matriks fitur untuk melatih model.
-
-       - `y_train`: Nilai target yang sesuai dengan data fitur dalam `X_train`.
-         
-- **Cara Kerja Model**:
-  - AdaBoost (Adaptive Boosting) bekerja dengan menggabungkan beberapa model lemah secara berurutan. Setiap model fokus pada kesalahan dari model sebelumnya dengan memberi bobot lebih besar pada data yang salah diprediksi. Model akhir adalah gabungan dari semua model lemah dengan bobot sesuai akurasinya.
-
----
-
-**Kelebihan dan Kekurangan Dari Setiap Model**
-| **Model**             | **Kelebihan**                                                                                                                                     | **Kekurangan**                                                                                                                              |
-|-----------------------|---------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
-| **K-Nearest Neighbor**| - Mudah diimplementasikan  <br> - Cocok untuk data kecil dan non-linear                                                                           | - Lambat saat prediksi pada data besar  <br> - Sensitif terhadap data noisy & skala fitur  <br> - Tidak efektif pada data berdimensi tinggi |
-| **Random Forest**     | - Akurasi tinggi & tahan overfitting  <br> - Bisa handle data numerik & kategorikal  <br> - Memberikan informasi feature importance               | - Kompleks & sulit diinterpretasikan  <br> - Butuh memori & waktu lebih banyak  <br> - Kurang cocok untuk prediksi real-time                |
-| **Adaptive Boosting** | - Tingkatkan akurasi model sederhana  <br> - Fokus pada data yang sulit diklasifikasi  <br> - Risiko overfitting rendah jika dituning dengan baik | - Sensitif terhadap outlier  <br> - Performa buruk jika base model terlalu kompleks  <br> - Membutuhkan tuning parameter yang tepat         |
-
-**Ketiga Model tersebut Cocok Karena**.
-
-- K-Nearest Neighbor (KNN) model non-parametrik yang sederhana dan efektif. Ia mengklasifikasikan atau melakukan regresi berdasarkan kedekatan ke tetangga terdekat, sehingga sangat intuitif. KNN juga cocok digunakan karena dataset yang kita gunakan ini terbilang memiliki dimensi yang cukup kecil, sehingga cocok dengan algoritma KNN yang sederhana
-
-- Random Forest Regressor menggabungkan hasil dari banyak pohon keputusan untuk menghasilkan prediksi yang lebih akurat dan robust. Ia juga memiliki mekanisme built-in untuk menangani overfitting dan dapat menangani data yang hilang dengan baik.
-
-- AdaBoostRegressor Cocok digunakan karena dataset ini bersih, dan boosting bisa memperbaiki kesalahan iteratif, meningkatkan akurasi secara progresif.
-
-## Evaluation
-
-Dalam analisis ini digunakan metrik Mean Squared Error (MSE) untuk mengevaluasi kinerja model. MSE mengukur seberapa jauh prediksi model menyimpang dari nilai sebenarnya, dengan cara menghitung selisih antara nilai prediksi dan nilai aktual, mengkuadratkannya, lalu mengambil rata-rata dari seluruh selisih kuadrat tersebut. Nilai MSE yang lebih kecil menunjukkan bahwa prediksi model lebih mendekati nilai sebenarnya.
-
-**Formula Mean Squared Error :**
-
-![Box Plot Illustration](https://github.com/Ganskuy/Submission_PredictiveAnalytics/blob/main/resources/mse.jpg?raw=true)
-
-**Cara Kerja MSE**
----
-
-1. **Hitung Error**
-   - Untuk setiap data, hitung selisih antara nilai aktual dan nilai prediksi:
-     
-     Errorᵢ = Yᵢ -  Ŷᵢ
-
-2. **Kuadratkan Error**
-   - Agar semua error bernilai positif dan memberi penalti lebih besar pada error yang besar:
-     
-     (Errorᵢ)²
-
-3. **Hitung Rata-rata**
-   - Jumlahkan semua error yang telah dikuadratkan dan bagi dengan jumlah data:
-     
-     MSE = (1/n) × ∑(i=1 to n) (Errorᵢ)²
-
----
-
-**Evaluasi Model Machine Learning**
-
-| Model     | Train MSE | Test MSE |
-|-----------|-----------|----------|
-| KNN       | 0.008466  | 0.011335 |
-| RF        | 0.000731  | 0.004887 |
-| Boosting  | 0.007777  | 0.009028 |
-
-![Box Plot Illustration](https://github.com/Ganskuy/Submission_PredictiveAnalytics/blob/main/resources/train-test.png?raw=true)
-
-| Index | y_true | prediksi_KNN  | prediksi_RF | prediksi_Boosting  |
-|-------|--------|---------------|-------------|--------------------|
-| 720   | 78.9   | 79.7          | 81.3        | 80.7               |
-
-Dari tabel di atas, dapat dilihat bahwa setiap model menghasilkan prediksi yang bervariasi untuk setiap nilai aktual (y_true). Model K-Nearest Neighbor (KNN) menunjukan hasil yang paling mendekati nilai aktual, sementara Random Forest dan Ada Boost menunjukkan hasil yang kompetitif. Secara keseluruhan, performa model dapat bervariasi tergantung pada karakteristik data dan hubungan yang ada antara fitur dan target.
+**Mean Average Precision@10 (MAP@10)**: `0.2929`
 
 ## Kesimpulan
 
-Dari hasil analisis dan evaluasi yang dilakukan, dapat disimpulkan bahwa model yang dibangun berhasil menjawab dua rumusan masalah utama yang diajukan. Pertama, melalui analisis multivariat dan proses pelatihan model, dapat diidentifikasi bahwa sejumlah fitur seperti GDP, Schooling, BMI, dan Health Expenditure merupakan faktor yang paling signifikan memengaruhi angka harapan hidup (Life Expectancy). Fitur-fitur ini menunjukkan korelasi yang kuat dan relevan dalam menentukan seberapa tinggi tingkat kesehatan dan kesejahteraan populasi di suatu negara. Kedua, model regresi yang dikembangkan juga terbukti mampu memprediksi angka harapan hidup secara akurat berdasarkan fitur-fitur input. Dari evaluasi menggunakan metrik Mean Squared Error (MSE), diketahui bahwa Model Random Forest dan Boosting (AdaBoost) menunjukkan performa terbaik, dengan nilai MSE yang paling rendah baik pada data pelatihan maupun pengujian. Hal ini menandakan bahwa kedua model tersebut sangat efektif dalam menangkap hubungan kompleks antar variabel untuk memprediksi nilai target. Secara khusus, Random Forest unggul dalam menjaga keseimbangan antara akurasi dan generalisasi. prediksi pada indeks 720 menunjukkan bahwa seluruh model memberikan hasil yang cukup mendekati nilai aktual. Hal ini menunjukkan tingkat keandalan prediksi yang baik, terutama oleh KNN dan Boosting, meskipun RF menghasilkan nilai prediksi tertinggi.
+Dalam proyek ini, digunakan metrik evaluasi Precision@K untuk mengukur seberapa relevan item-item yang direkomendasikan oleh sistem di antara k item teratas. Nilai relevansi diukur berdasarkan daftar film yang dianggap mirip dengan Avatar (2009), yang diambil dari artikel “10 Movies To Watch If You Love James Cameron’s Avatar” oleh  [CBR.com](https://www.cbr.com/movies-to-watch-if-you-like-avatar/).
+
+Hasil evaluasi menunjukkan bahwa precision tertinggi terjadi pada k=1 dengan nilai 1.0, diikuti oleh penurunan secara bertahap hingga 0.1 pada k=10, yang berarti hanya 1 dari 10 film teratas yang benar-benar relevan menurut ground truth. Rata-rata presisi keseluruhan dihitung melalui Mean Average Precision@10 (MAP@10) dengan hasil 0.29 atau sekitar 29%, menunjukkan bahwa secara umum sistem hanya mampu menangkap sebagian kecil relevansi dari preferensi yang ditentukan secara manual.
+
+Perbedaan ini dapat dijelaskan oleh perbedaan pendekatan antara mesin dan manusia, mesin mengandalkan kesamaan fitur tekstual (seperti genre, sinopsis, dan informasi teknis), sedangkan data ground truth didasarkan pada opini dan konteks naratif dari manusia. Meski begitu, sistem berhasil memberikan rekomendasi yang cukup relevan secara data pada Top-N Recommencation, terutama karena kemiripan genre seperti Action, Adventure, dan Romance. Namun, sistem belum berhasil menangkap genre Science Fiction, yang justru merupakan elemen penting dan khas dari film Avatar.
+
+Dengan demikian, model content-based filtering ini sudah cukup baik, namun masih memiliki ruang untuk ditingkatkan—misalnya dengan mempertimbangkan bobot genre tertentu yang lebih menonjol atau menggabungkan pendekatan hybrid.
 
 ## Referensi
 
-Life Expectancy, Healthy Life Expectancy, and Burden of Disease in Older People in The Americas, 1990–2019: a Population-based Study [_( Link Jurnal )_](https://pmc.ncbi.nlm.nih.gov/articles/PMC8489742/)
+Sistem Rekomendasi Film Menggunakan Content Based Filtering [_( Link Jurnal )_](https://j-ptiik.ub.ac.id/index.php/j-ptiik/article/view/9163)
+The Netflix Recommender System: Algorithms, Business Value, and Innovation [_( Link Jurnal )_](https://dl.acm.org/doi/abs/10.1145/2843948)
+THE 50 HIGHEST-GROSSING MOVIES OF ALL TIME: YOUR TOP BOX OFFICE EARNERS EVER WORLDWIDE [_( Link Websitel )_](https://editorial-rottentomatoes-com.translate.goog/article/highest-grossing-movies-all-time/?_x_tr_sl=en&_x_tr_tl=id&_x_tr_hl=id&_x_tr_pto=tc)
+10 Movies To Watch If You Love James Cameron's Avatar [_( Link Websitel )_](https://www.cbr.com/movies-to-watch-if-you-like-avatar/)
 
 # Link Repository GitHub
 
