@@ -212,13 +212,13 @@ Penjelasan:
 - Σ Ai * Bi menghitung jumlah hasil kali elemen-elemen yang bersesuaian dari A dan B.
 - √(Σ Ai²) dan √(Σ Bi²) menghitung panjang (magnitudo) dari masing-masing vektor.
 
-**TF-IDF (TermFrequency-InverseDocumentFrequency)**
+### TF-IDF (TermFrequency-InverseDocumentFrequency)
 
 TF-IDF merupakan angka statistik yang menunjukkan relevansi suatu termdengan beberapa dokumen sehingga termtersebut dapat menjadi kata kunci dari dokumen tertentu. Dari nilai tersebut beberapa dokumen tertentu dapat diidentifikasi atau dikategorikan [_(Fajriansyah et al., 2021)_](https://j-ptiik.ub.ac.id/index.php/j-ptiik/article/view/9163). 
 
-![Box Plot Illustration](https://github.com/Ganskuy/submission_SistemRekomendasi_Ghani/blob/main/resource/cosine.png?raw=true)
+![Box Plot Illustration](https://github.com/Ganskuy/submission_SistemRekomendasi_Ghani/blob/main/resource/Screenshot%202025-05-28%20at%2003.06.31.png?raw=true)
 
-#### Development
+Proses perhitungan TF-IDF dimulai dengan menghitung term frequency (TF), yaitu seberapa sering sebuah term t muncul dalam dokumen d. Nilai ini menunjukkan pentingnya term tersebut dalam konteks satu dokumen. Selanjutnya, nilai tersebut dikalikan dengan inverse document frequency (IDF), yaitu ukuran seberapa jarangnya term tersebut muncul di seluruh kumpulan dokumen. Hasil dari perkalian TF dan IDF menghasilkan bobot akhir, yang menunjukkan seberapa penting suatu kata dalam dokumen tertentu dibandingkan dengan dokumen lainnya. TF-IDF membantu menyoroti kata-kata yang khas dan relevan bagi setiap dokumen.
 
   1.   ```from sklearn.feature_extraction.text import TfidfVectorizer```
 
@@ -235,6 +235,75 @@ TF-IDF merupakan angka statistik yang menunjukkan relevansi suatu termdengan beb
   4.   ```tfidf_matrix.todense()```
 
        - mengubah tfidf_matrix kedalam bentuk matrix dengan fungsi todense()
+
+### Development
+
+  1.   ```from sklearn.metrics.pairwise import cosine_similarity```
+
+       - Mengimpor class `cosine_similarity` dari pustaka scikit-learn.
+
+  2.   ```cosine_sim = cosine_similarity(tfidf_matrix) ```
+
+       - Mengaplikasikan cosine_similarity pada variabel tfid_matrix
+
+  3. Menghasilkan Film Recommendation
+
+```python
+def film_recommendations(nama_film, similarity_data=cosine_sim_df, items=data[['Title', 'info']], k=10):
+    index = similarity_data.loc[:, nama_film].to_numpy().argpartition(range(-1, -k-1, -1))
+    closest = similarity_data.columns[index[-1:-(k+2):-1]]
+    closest = closest.drop(nama_film, errors='ignore')
+
+    similarity_scores = similarity_data.loc[closest, nama_film].values
+
+    rekomendasi_df = pd.DataFrame(closest, columns=["Title"])
+    rekomendasi_df["Similarity"] = similarity_scores
+
+    return rekomendasi_df.merge(items, on="Title").sort_values(by="Similarity", ascending=False).head(k)
+```
+
+- Mengambil data dengan menggunakan argpartition untuk melakukan partisi secara tidak langsung sepanjang sumbu yang diberikan 
+- Dataframe diubah menjadi numpy
+- Urutan akan turun dari -1 sampai -k, dengan step -1
+- Mengambil data dengan similarity terbesar dari index yang ada
+- Mengambil skor similarity pada film-film yang direkomendasikan
+- Drop nama_film agar nama film yang dicari tidak muncul dalam daftar rekomendasi
+- menggunakan k=10, artinya model akan memberikan rekomendasi sebanyak 10 film
+
+### Top-N Recommendation
+
+```film_recommendations('Avatar') ```
+
+Disini kita mencari rekomendasi film yang mirip dengan film Avatar (2009)
+
+| No | Title                                         | Similarity | Info                                                                |
+|----|-----------------------------------------------|------------|---------------------------------------------------------------------|
+| 0  | Avatar: The Way of Water                      | 0.293632   | action adventure fantasy sci-fi james cameron ...                   |
+| 1  | 5 Star Day                                    | 0.226471   | drama romance danny buday danny buday jake gib...                   |
+| 2  | To Save a Life                                | 0.209381   | drama brian baugh brian baugh jim britts save ...                   |
+| 3  | Miss Peregrine's Home for Peculiar Children   | 0.197852   | adventure drama family fantasy thriller tim bu...                   |
+| 4  | Revolver                                      | 0.193388   | action crime drama mystery thriller guy ritchi...                   |
+| 5  | Self Reliance                                 | 0.192403   | comedy thriller jake johnson jake johnson tomm...                   |
+| 6  | Everybody Wants to Be Italian                 | 0.172340   | comedy romance jason todd ipson jason todd ips...                   |
+| 7  | A Kid Like Jake                               | 0.157935   | drama silas howard daniel pearle brooklyn pare...                   |
+| 8  | Just My Luck                                  | 0.146301   | comedy fantasy romance donald petrie i marlene...                   |
+| 9  | The Girl from the Naked Eye                   | 0.143047   | action crime mystery romance thriller david re...                   |
+
+Hasil diatas merupakan rekomendasi yang diberikan oleh sistem, kemudian kita akan menelusuri seberapa akuratnya rekomendasi yang diberikan jika kita bandingkan dengan Rekomendasi Manusia
+
+## Evaluasi
+
+Pada evaluasi ini, kita akan membandingkan, seberapa akurat model dapat merekomendasikan film, jika dibandingkan rekomendasi yang diberikan oleh manusia, Mterik yang digunakan adalah Precission@k dan Mean Precission@k. Precision@K adalah metrik evaluasi yang mengukur proporsi item relevan dari K hasil teratas yang direkomendasikan, dan Mean Precision@K (MP@K) adalah rata-rata dari Precision@K yang dihitung untuk banyak pengguna atau banyak kasus rekomendasi.
+
+**Rmus Precission@k**
+![Box Plot Illustration](https://github.com/Ganskuy/submission_SistemRekomendasi_Ghani/blob/main/resource/precission@k.png?raw=true)
+
+**Rumus Mean Precission@k**
+![Box Plot Illustration](https://github.com/Ganskuy/submission_SistemRekomendasi_Ghani/blob/main/resource/precission@k.png?raw=true)
+
+
+
+
          
 - **Cara Kerja Model**:
   - K-Nearest Neighbors bekerja dengan mencari sejumlah tetangga terdekat dalam ruang fitur yang memiliki nilai target serupa. Setelah tetangga ditemukan, model akan menggunakan nilai rata-rata dari tetangga tersebut untuk membuat prediksi nilai target untuk data baru.
