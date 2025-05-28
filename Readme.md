@@ -346,4 +346,4 @@ THE 50 HIGHEST-GROSSING MOVIES OF ALL TIME: YOUR TOP BOX OFFICE EARNERS EVER WOR
 
 # Link Repository GitHub
 
-https://github.com/Ganskuy/Submission_PredictiveAnalytics
+https://github.com/Ganskuy/submission_SistemRekomendasi_Ghani
