@@ -337,8 +337,11 @@ Dengan demikian, model content-based filtering ini sudah cukup baik, namun masih
 ## Referensi
 
 Sistem Rekomendasi Film Menggunakan Content Based Filtering [_( Link Jurnal )_](https://j-ptiik.ub.ac.id/index.php/j-ptiik/article/view/9163)
+
 The Netflix Recommender System: Algorithms, Business Value, and Innovation [_( Link Jurnal )_](https://dl.acm.org/doi/abs/10.1145/2843948)
+
 THE 50 HIGHEST-GROSSING MOVIES OF ALL TIME: YOUR TOP BOX OFFICE EARNERS EVER WORLDWIDE [_( Link Websitel )_](https://editorial-rottentomatoes-com.translate.goog/article/highest-grossing-movies-all-time/?_x_tr_sl=en&_x_tr_tl=id&_x_tr_hl=id&_x_tr_pto=tc)
+
 10 Movies To Watch If You Love James Cameron's Avatar [_( Link Websitel )_](https://www.cbr.com/movies-to-watch-if-you-like-avatar/)
 
 # Link Repository GitHub
