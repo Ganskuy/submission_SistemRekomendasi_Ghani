@@ -108,9 +108,6 @@ Terlihat bahwa rating memiliki nilai maksimum 10, dengan rata-rata 6.6
 
 terlihat bahwa pada fitur rating, film dengan rating 7 adalah frekuensi terbanyak
 
-
-## Data Preprocessing
-
 **Mengecek Missing Value pada Data**
 
 Pada proses ini, kita akan mengecek missing value pada data serta menanganinya
@@ -143,6 +140,17 @@ namun sebelum drop kolom-kolom yang memiliki nilai NaN, kita akan drop terlebih 
 - Unnamed: 0 hanya berisi nomor kolom
 - No of Persons Voted : berisi jumlah orang yang sudah vote
 
+**Mengecek data duplikat**
+
+Pada sistem rekomendasi, jika pada dataset terdapat data duplikat, kita harus memastikan terlebih dahulu apakah data tersebut memang mungkin sama atau tidak, seperti pada kolom Directed by. Written by, dan Genres yang memungkinkan adanya data yang sama disitu, dan hal itu juga yang akan membantu model dalam mengenali similaritas antar data. Oleh karena itu kita akan mengecek data duplikat dengan berfokus pada fitur Title, karena tidak mungkin dan tidak bileh ada data duplikat disini.
+
+`df['Title'].duplicated().sum()`
+
+Setelah menjalankan code diatas, saya mendapati bahwa terdapat sebanyak 1275 data duplikat pada fitur Title, baris-baris tersebut lah yang akan kita drop
+
+
+## Data Preprocessing
+
 **Drop kolom yang tidak relevan**
 
 `df = df.drop(['Unnamed: 0', 'Release Date', 'No of Persons Voted', 'Duration'], axis=1)`
@@ -157,13 +165,7 @@ namun sebelum drop kolom-kolom yang memiliki nilai NaN, kita akan drop terlebih 
 
 Terlihat bawhwa dimensi pada dataset sudah berubah setelah kita drop kolom irrelevan dan baris yang berisi missing values
 
-**Mengecek dan menangani data duplikat**
-
-Pada sistem rekomendasi, jika pada dataset terdapat data duplikat, kita harus memastikan terlebih dahulu apakah data tersebut memang mungkin sama atau tidak, seperti pada kolom Directed by. Written by, dan Genres yang memungkinkan adanya data yang sama disitu, dan hal itu juga yang akan membantu model dalam mengenali similaritas antar data. Oleh karena itu kita akan mengecek data duplikat dengan berfokus pada fitur Title, karena tidak mungkin dan tidak bileh ada data duplikat disini.
-
-`df['Title'].duplicated().sum()`
-
-Setelah menjalankan code diatas, saya mendapati bahwa terdapat sebanyak 1275 data duplikat pada fitur Title, baris-baris tersebut lah yang akan kita drop
+**Menangani Data Duplikat**
 
 `df = df.drop_duplicates('Title')`
 
@@ -193,26 +195,7 @@ Dibawah ini ditampilkan 5 data acak dari dataset akhir yang disimpan dalam varia
 | 3     | Tokyo Story              | drama yasujirô ozu kôgo noda yasujirô ozu yasu...                    |
 | 4     | The Leopard (re-release) | drama history luchino visconti giuseppe tomasi...                   | 
 
-## Membuat Sistem Rekomendasi dengan Pendekatan Content-based Filtering
-
-Content-based Filtering adalah metode rekomendasi yang menyarankan item berdasarkan kesamaan antara fitur item dan preferensi pengguna. Sistem ini menganalisis atribut (seperti genre, deskripsi, atau kategori) dari item yang disukai pengguna, lalu merekomendasikan item lain yang memiliki fitur serupa. Pada proyek ini, kita akan menggunakan Cosine Similarity sebagai metrik similaritas untuk memberikan top-N rekommendation dari film yang menjadi studi kasus kali ini, yaitu Avatar (2009). 
-
-### Cosine Similarity
-
-Cosine Similarity adalah metode untuk mengukur seberapa mirip dua vektor dalam ruang vektor, dengan menghitung nilai cosinus dari sudut di antara keduanya. Nilai cosine similarity berkisar antara -1 hingga 1, di mana 1 berarti kedua vektor identik (arahnya sama). Fitur yang ada pada suatu dokumen yang merupakan dimensi membentuk sebuah vektor, Kedua vektor yang terbentuk dari dua dokumen dapat dicari kemiripannya dengan menghitung jarak antar vektor [_(Fajriansyah et al., 2021)_](https://j-ptiik.ub.ac.id/index.php/j-ptiik/article/view/9163). Akan tetapi sebelum masuk ke tahap Development, variabel info yang berisi informasi tentang film akan diproses terlebih dahulu oleh TF-IDF (TermFrequency-InverseDocumentFrequency).
-
-**Rumus Cosine Similarity**
-
-![Box Plot Illustration](https://github.com/Ganskuy/submission_SistemRekomendasi_Ghani/blob/main/resource/cosine.png?raw=true)
-
-Penjelasan:
-- A . B adalah dot product (perkalian titik) antara vektor A dan B.
-- ||A|| dan ||B|| adalah norma (panjang) dari masing-masing vektor.
-- Ai dan Bi adalah elemen ke-i dari vektor A dan B.
-- Σ Ai * Bi menghitung jumlah hasil kali elemen-elemen yang bersesuaian dari A dan B.
-- √(Σ Ai²) dan √(Σ Bi²) menghitung panjang (magnitudo) dari masing-masing vektor.
-
-### TF-IDF (TermFrequency-InverseDocumentFrequency)
+### Ekstraksi Fitur dan Pembobotan Term Menggunakan TF-IDF (TermFrequency-InverseDocumentFrequency)
 
 TF-IDF merupakan angka statistik yang menunjukkan relevansi suatu termdengan beberapa dokumen sehingga termtersebut dapat menjadi kata kunci dari dokumen tertentu. Dari nilai tersebut beberapa dokumen tertentu dapat diidentifikasi atau dikategorikan [_(Fajriansyah et al., 2021)_](https://j-ptiik.ub.ac.id/index.php/j-ptiik/article/view/9163). 
 
@@ -235,6 +218,25 @@ Proses perhitungan TF-IDF dimulai dengan menghitung term frequency (TF), yaitu s
   4.   ```tfidf_matrix.todense()```
 
        - mengubah tfidf_matrix kedalam bentuk matrix dengan fungsi todense()
+
+## Membuat Sistem Rekomendasi dengan Pendekatan Content-based Filtering
+
+Content-based Filtering adalah metode rekomendasi yang menyarankan item berdasarkan kesamaan antara fitur item dan preferensi pengguna. Sistem ini menganalisis atribut (seperti genre, deskripsi, atau kategori) dari item yang disukai pengguna, lalu merekomendasikan item lain yang memiliki fitur serupa. Pada proyek ini, kita akan menggunakan Cosine Similarity sebagai metrik similaritas untuk memberikan top-N rekommendation dari film yang menjadi studi kasus kali ini, yaitu Avatar (2009). 
+
+### Cosine Similarity
+
+Cosine Similarity adalah metode untuk mengukur seberapa mirip dua vektor dalam ruang vektor, dengan menghitung nilai cosinus dari sudut di antara keduanya. Nilai cosine similarity berkisar antara -1 hingga 1, di mana 1 berarti kedua vektor identik (arahnya sama). Fitur yang ada pada suatu dokumen yang merupakan dimensi membentuk sebuah vektor, Kedua vektor yang terbentuk dari dua dokumen dapat dicari kemiripannya dengan menghitung jarak antar vektor [_(Fajriansyah et al., 2021)_](https://j-ptiik.ub.ac.id/index.php/j-ptiik/article/view/9163).
+
+**Rumus Cosine Similarity**
+
+![Box Plot Illustration](https://github.com/Ganskuy/submission_SistemRekomendasi_Ghani/blob/main/resource/cosine.png?raw=true)
+
+Penjelasan:
+- A . B adalah dot product (perkalian titik) antara vektor A dan B.
+- ||A|| dan ||B|| adalah norma (panjang) dari masing-masing vektor.
+- Ai dan Bi adalah elemen ke-i dari vektor A dan B.
+- Σ Ai * Bi menghitung jumlah hasil kali elemen-elemen yang bersesuaian dari A dan B.
+- √(Σ Ai²) dan √(Σ Bi²) menghitung panjang (magnitudo) dari masing-masing vektor.
 
 ### Development
 
